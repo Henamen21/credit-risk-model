@@ -1,2 +1,4 @@
 /credit-venv
 /data
+pycache
+*.pyc
