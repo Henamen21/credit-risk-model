@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import StandardScaler
+from datetime import timedelta
 
 class TransactionFeatureExtractor(BaseEstimator, TransformerMixin):
     def __init__(self, datetime_col="TransactionStartTime", amount_col="Amount", customer_id_col="CustomerId"):
@@ -57,3 +58,23 @@ def standard_scale(df, columns):
     df_scaled[columns] = scaler.fit_transform(df_scaled[columns])
 
     return df_scaled, scaler
+
+# proxy target variable engineering
+def create_proxy_target(df, target_col='Target', threshold=0.5):
+
+    snapshot_date = df['TransactionStartTime'].max() + timedelta(days=1)
+
+    rfm = df.groupby('CustomerId').agg({
+        'TransactionStartTime': lambda x: (snapshot_date - x.max()).days,  # Recency
+        'CustomerId': 'count',                                         # Frequency
+        'Amount': 'sum'                                     # Monetary
+    }).rename(columns={
+        'TransactionStartTime': 'Recency',
+        'CustomerId': 'Frequency',
+        'Amount': 'Monetary'
+    }).reset_index()
+
+    df = df.merge(rfm, on='CustomerId', how='left')
+    df.drop(columns=['TransactionStartTime', 'CustomerId'], inplace=True)
+
+    return df
