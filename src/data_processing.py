@@ -75,5 +75,6 @@ def create_proxy_target(df, target_col='Target', threshold=0.5):
     }).reset_index()
 
     df = df.merge(rfm, on='CustomerId', how='left')
+    df.drop(columns=['TransactionStartTime', 'CustomerId'], inplace=True)
 
     return df
