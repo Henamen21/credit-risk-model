@@ -34,3 +34,12 @@ tornado==6.5.1
 traitlets==5.14.3
 tzdata==2025.2
 wcwidth==0.2.13
+fastapi
+uvicorn
+pydantic
+joblib
+pandas
+scikit-learn
+imblearn
+flake8
+pytest
